@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import {
-  TextField,
   Button,
   Container,
   Typography,
@@ -13,7 +12,7 @@ import {
   Paper,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { Formik, Field, Form } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import withAuth from "../../hooks/useAuth";
 import Header from "../Header/header";
@@ -33,10 +32,10 @@ const updateUserData = async ({ userId, user }) => {
 };
 
 const validationSchema = Yup.object({
-  userName: Yup.string().required("Username is required"),
-  email: Yup.string().email("Invalid email address").required("Email is required"),
-  currentPassword: Yup.string().required("Current password is required"),
-  newPassword: Yup.string().required("New password is required"),
+  userName: Yup.string().optional(),
+  email: Yup.string().email("Invalid email address").optional(),
+  currentPassword: Yup.string().optional(),
+  newPassword: Yup.string().optional()
 });
 
 const Profile = () => {
@@ -88,7 +87,7 @@ const Profile = () => {
                 initialValues={{
                   userName: data.data.user.userName || "",
                   email: data.data.user.email || "",
-                  currentPassword: "********",
+                  currentPassword: "",
                   newPassword: "",
                 }}
                 validationSchema={validationSchema}
@@ -96,7 +95,7 @@ const Profile = () => {
                   mutation.mutate(values);
                 }}
               >
-                {({ isSubmitting, setFieldValue, values }) => (
+                {({ values }) => (
                   <Form>
                     <Grid container spacing={3}>
                       <Grid item xs={12} sm={12}>
@@ -105,7 +104,7 @@ const Profile = () => {
                           name="userName"
                           fullWidth
                           margin="normal"
-                          required
+                          required={false}
                           disabled={!editMode}
                           variant="outlined"
                         />
@@ -116,7 +115,7 @@ const Profile = () => {
                           name="email"
                           fullWidth
                           margin="normal"
-                          required
+                          required={false}
                           type="email"
                           disabled={!editMode}
                           variant="outlined"
@@ -128,7 +127,7 @@ const Profile = () => {
                           name="currentPassword"
                           fullWidth
                           margin="normal"
-                          required
+                          required={false}
                           type="password"
                           disabled={!editMode}
                           variant="outlined"
@@ -141,7 +140,7 @@ const Profile = () => {
                             name="newPassword"
                             fullWidth
                             margin="normal"
-                            required
+                            required={false}
                             type="password"
                             variant="outlined"
                           />
@@ -154,7 +153,7 @@ const Profile = () => {
                           <Button
                             type="submit"
                             variant="contained"
-                            color="primary"
+                            color="success"
                           >
                             Save
                           </Button>

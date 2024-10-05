@@ -11,9 +11,10 @@ import Select from "./FormUI/Select";
 import axios from "axios";
 import Header from "./Header/header";
 import { useNavigate } from "react-router-dom";
+import DateTimePickerWrapper from "./FormUI/DateTimePicker";
 
 
-const FirstStep = () => {
+const FirstStep = () => {s
   const navigate = useNavigate();
   const { setStep, userData, setUserData, registerEmail, loginEmail, userId } =
     useContext(multiStepContext);
@@ -149,7 +150,7 @@ const FirstStep = () => {
               />
             </Grid>
             <Grid item xs={6}>
-              <DateTimePicker
+              <DateTimePickerWrapper
                 name="dateOfBirth"
                 label="Date of Birth"
                 variant="filled"

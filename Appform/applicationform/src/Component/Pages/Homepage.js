@@ -8,30 +8,34 @@ import { useMutation } from "@tanstack/react-query";
 import TextfieldWrapper from "../FormUI/TextfieldWrapper";
 import { multiStepContext } from "../../StepContext";
 import withAuth from "../../hooks/useAuth";
+import Alert from "@mui/material/Alert";
 
 const API_URL = "http://localhost:5001";
 
 const Homepage = () => {
   const navigate = useNavigate();
   const [isLoggingIn, setIsLoggingIn] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleSuccess = (data) => {
-    const {stepComplete,token, userId} = data.data.data;
-    console.log(data.data.data)
+    const { stepComplete, token, userId } = data.data.data;
     localStorage.setItem('token', token);
     if (stepComplete) {    
-    navigate(`${stepComplete}/?UID=${userId}`);
+      navigate(`${stepComplete}/?UID=${userId}`);
     } else {
       navigate(`/dashboard/?UID=${userId}`);
     }
-    console.log(stepComplete)
-    
   }
 
   const loginMutation = useMutation({
     mutationFn: (loginData) => axios.post(`${API_URL}/login`, loginData),
-    onSuccess: (data) => handleSuccess(data),
-    onError: () => alert("Login failed. Please check your credentials and try again."),
+    onSuccess: (data) => {
+      handleSuccess(data);
+      setError(null); // Clear error on success
+    },
+    onError: () => {
+      setError("Login failed. Please check your credentials and try again.");
+    },
   });
 
   const registerMutation = useMutation({
@@ -39,8 +43,11 @@ const Homepage = () => {
     onSuccess: (data) => {
       const { userId } = data.data.data;
       navigate(`/step-1/?UID=${userId}`);
+      setError(null); // Clear error on success
     },
-    onError: () => alert("Registration failed. Please try again."),
+    onError: () => {
+      setError("Registration failed. Please try again.");
+    },
   });
 
   return (
@@ -56,6 +63,7 @@ const Homepage = () => {
       <Typography variant="h4" gutterBottom>
         Applications
       </Typography>
+      {error && <Alert severity="error">{error}</Alert>}
       {isLoggingIn ? (
         <LoginForm setIsLoggingIn={setIsLoggingIn} loginMutation={loginMutation} />
       ) : (

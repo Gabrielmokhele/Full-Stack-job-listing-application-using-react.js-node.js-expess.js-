@@ -28,7 +28,16 @@ module.exports = (sequelize, DataTypes) => {
         as: 'myfiles', 
       });
     }
+    static associate(models) {
+      const { JobsApplied, jobs } = models;
+      User.belongsToMany(jobs, {
+        through: JobsApplied,
+        foreignKey: 'userId', 
+        as: 'jobsApplied', 
+      });
+    }
   }
+  
 
   User.init(
     {

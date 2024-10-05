@@ -4,10 +4,11 @@ import {useField} from 'formik';
 
 const TextfieldWrapper = ({
     name,
+    required,
     ...otherProps
 }) => {
 
-    const [field, meta, helpers] = useField(name);
+    const [field, meta] = useField(name);
 
   
 
@@ -15,6 +16,7 @@ const TextfieldWrapper = ({
         ...field,
         ...otherProps,
         variant: 'outlined',
+        required: required,
         
         
     };

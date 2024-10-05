@@ -1,131 +1,359 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
-import Header from "../Header/header";
-import { Card, CardContent, CardActions, Button, Collapse, Typography, Box, Container } from '@mui/material';
-import withAuth from "../../hooks/useAuth";
+import React, { useState } from 'react';
+import {
+  Typography,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Collapse,
+  Box,
+  Container,
+  CircularProgress,
+  Alert,
+  Grid,
+} from '@mui/material';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Header from '../Header/header';
+import withAuth from '../../hooks/useAuth';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+import JobPopup from '../jobPopUp';
+import MyAccountCard from './MyAccountCard';
+import MyExAndEdCard from './MyExAndEdCard';
+
+
+const fetchUserApplications = async (userId) => {
+  try {
+    const response = await axios.get(`http://localhost:5001/user/${userId}`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Failed to fetch user applications:', error);
+    throw error;
+  }
+};
+
+const deleteAppliedJob = async ({ userId, jobId }) => {
+  try {
+    await axios.delete(`http://localhost:5001/user/${userId}/job/${jobId}`);
+  } catch (error) {
+    console.error('Failed to delete job application:', error);
+    throw error;
+  }
+};
+
+const fetchSuggestedJobs = async (userId) => {
+  try {
+    const response = await axios.get(`http://localhost:5001/suggestjobs/${userId}`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Failed to fetch suggested jobs:', error);
+    throw error;
+  }
+};
 
 const CandidateHome = () => {
-    const [openJob, setOpenJob] = useState(false);
-    const [openSuggestions, setOpenSuggestions] = useState(false);
-    const [openMyAccount, setOpenMyAccount] = useState(false);
-    const location = useLocation();
-    const appliedJob = location.state?.appliedJob;
+  const [openJob, setOpenJob] = useState(false);
+  const [openSuggestions, setOpenSuggestions] = useState(false);
+  const [openMyAccount, setOpenMyAccount] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [selectedJob1, setSelectedJob1] = useState(null);
+  const queryClient = useQueryClient();
+  const { userId } = useParams();
 
-    const handleJobClick = () => {
-        setOpenJob(!openJob);
-    };
+  const {
+    data: userApplications,
+    error: userApplicationsError,
+    isLoading: userApplicationsLoading,
+  } = useQuery({
+    queryKey: ['userApplications', userId],
+    queryFn: () => fetchUserApplications(userId),
+  });
 
-    const handleSuggestionsClick = () => {
-        setOpenSuggestions(!openSuggestions);
-    };
+  const {
+    data: suggestedJobs,
+    error: suggestedJobsError,
+    isLoading: suggestedJobsLoading,
+  } = useQuery({
+    queryKey: ['suggestedJobs', userId],
+    queryFn: () => fetchSuggestedJobs(userId),
+  });
 
-    const handleAccountClick = () => {
-        setOpenMyAccount(!openMyAccount)
-    }
+  const mutation = useMutation({
+    mutationFn: deleteAppliedJob,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['userApplications', userId]);
+    },
+  });
 
-    return (
-        <Box sx={{ display: "flex" }}>
-            <Header />
-            <Box
-                component="main"
-                sx={{
-                    ml: 5,
-                    mr: 5,
-                    mt: 10,
-                    flexGrow: 1,
-                    p: 3,
-                    transition: "margin 0.3s ease",
-                }}
-            >
-                <Container>
-                    <Typography variant="h4" gutterBottom>
-                        | Candidate Home
-                    </Typography>
+  const mutationApply = useMutation({
+    mutationFn: async ({ jobId }) => {
+      return axios.post("http://localhost:5001/jobsapplied", { userId, jobId });
+    },
+    onSuccess: () => {
+      setSelectedJob(null)
+      alert(`You have applied for the ${selectedJob.title} position.`);
+      queryClient.invalidateQueries(['userApplications', userId])
+    },
+    onError: (error) => {
+      console.error("Failed to apply for job:", error);
+      alert("Failed to apply for the job.");
+    },
+  });
 
-                    
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h5" component="div">
-                                My Applications
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Click show more to view all applications
-                            </Typography>
-                            <Collapse in={openJob}>
-                                {appliedJob && (
-                                    <Box sx={{ mt: 2 }}>
-                                        <Typography variant="h6" component="div">
-                                            Applied Job
-                                        </Typography>
-                                        <Typography variant="body1" component="div">
-                                            {appliedJob.title}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {appliedJob.details}
-                                        </Typography>
-                                    </Box>
-                                )}
-                            </Collapse>
-                        </CardContent>
-                        <CardActions>
-                            <Button size="small" onClick={handleJobClick}>
-                                {openJob ? 'Show Less' : 'Show More'}
-                            </Button>
-                        </CardActions>
-                    </Card>
+  const handleDelete = (jobId) => {
+    mutation.mutate({ userId, jobId });
+  };
 
-                    
-                    <Card sx={{ mt: 4 }}>
-                        <CardContent>
-                            <Typography variant="h5" component="div">
-                                Suggested Jobs
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Click show more to see suggested jobs based on your experience
-                            </Typography>
-                            <Collapse in={openSuggestions}>
-                                <Typography paragraph>
-                                    Here you can add additional content for suggested jobs.
-                                </Typography>
-                                <Typography paragraph>
-                                    This can include job listings, descriptions, or other relevant information.
-                                </Typography>
-                            </Collapse>
-                        </CardContent>
-                        <CardActions>
-                            <Button size="small" onClick={handleSuggestionsClick}>
-                                {openSuggestions ? 'Show Less' : 'Show More'}
-                            </Button>
-                        </CardActions>
-                    </Card>
+  const handleJobClick = () => {
+    setOpenJob(!openJob);
+  };
 
-                    <Card sx={{ mt: 4 }}>
-                        <CardContent>
-                            <Typography variant="h5" component="div">
-                                My Account
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Click more details to Update your Personal details, experiences, educations and to upload new CV.
-                            </Typography>
-                            <Collapse in={openMyAccount}>
-                                <Typography paragraph>
-                                    Here you can add additional content for suggested jobs.
-                                </Typography>
-                                <Typography paragraph>
-                                    This can include job listings, descriptions, or other relevant information.
-                                </Typography>
-                            </Collapse>
-                        </CardContent>
-                        <CardActions>
-                            <Button size="small" onClick={handleAccountClick}>
-                                {openMyAccount ? 'Show Less' : 'Show More'}
-                            </Button>
-                        </CardActions>
-                    </Card>
-                </Container>
-            </Box>
-        </Box>
+  const handleSuggestionsClick = () => {
+    setOpenSuggestions(!openSuggestions);
+  };
+
+  const handleAccountClick = () => {
+    setOpenMyAccount(!openMyAccount);
+  };
+
+  const handleOpenPopup = (job) => {
+    setSelectedJob(job);
+  };
+
+
+  const handleClosePopup = () => {
+    setSelectedJob(null);
+  };
+
+  const handleOpenPopup1 = (appliedjob) => {
+    console.log('Opening popup for applied job:', appliedjob);
+    setSelectedJob1(appliedjob);
+    console.log(appliedjob)
+  };
+  
+
+
+  const handleClosePopup1 = () => {
+    setSelectedJob1(null);
+  };
+
+  const handleApply = () => {
+    const jobId = selectedJob.id;
+    const jobTitle = selectedJob.title;
+
+    const alreadyApplied = userApplications.some(
+      (job) => job.jobId === jobId && job.applicants.title === jobTitle
     );
+  
+    if (alreadyApplied) {
+      alert("You have already applied for this job.");
+    } else {
+      mutationApply.mutate({ userId, jobId });
+    }
+  };
+  
+
+  if (userApplicationsLoading || suggestedJobsLoading) return <CircularProgress />;
+  if (userApplicationsError) return (
+    <Alert severity="error">
+      Failed to fetch user applications: {userApplicationsError.message}
+    </Alert>
+  );
+  if (suggestedJobsError) return (
+    <Alert severity="error">
+      Failed to fetch suggested jobs: {suggestedJobsError.message}
+    </Alert>
+  );
+
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <Header />
+      <Box
+        component="main"
+        sx={{
+          ml: 5,
+          mr: 5,
+          mt: 10,
+          flexGrow: 1,
+          p: 3,
+          transition: 'margin 0.3s ease',
+        }}
+      >
+        <Container>
+          <Typography variant="h4" gutterBottom>
+            | Candidate Home
+          </Typography>
+
+          <Card>
+            <CardContent>
+              <Typography variant="h5" component="div">
+                My Applications
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Click show more to view all applications
+              </Typography>
+              <Collapse in={openJob}>
+                {userApplicationsLoading && <Typography>Loading...</Typography>}
+                {userApplicationsError && (
+                  <Typography color="error">{`Error: ${userApplicationsError.message}`}</Typography>
+                )}
+                {userApplications && userApplications.length > 0 ? (
+                  <Box sx={{ mt: 2 }}>
+                    {userApplications.map((appliedjob) => (
+                      <Card key={`${appliedjob.applicants.jobId}-${appliedjob.applicants.title}`}
+                      sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
+                      >
+                        <CardContent sx={{ flex: 1 }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Typography variant="h6" component="div">
+                              {appliedjob.applicants.title}
+                            </Typography>
+                            <Grid sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <Button
+                                onClick={() => handleOpenPopup1(appliedjob.applicants)}
+                                color="primary"
+                                variant="contained"
+                              >
+                                More Details
+                              </Button>
+                              <Button
+                                sx={{ ml: 1 }}
+                                onClick={() => handleDelete(appliedjob.jobId)}
+                                color="warning"
+                                variant="contained"
+                              >
+                                Delete
+                              </Button>
+                            </Grid>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography>No applications found.</Typography>
+                )}
+              </Collapse>
+            </CardContent>
+            <CardActions>
+              <Button size="small" onClick={handleJobClick}>
+                {openJob ? 'Show Less' : 'Show More'}
+              </Button>
+            </CardActions>
+          </Card>
+
+          <Card sx={{ mt: 4 }}>
+            <CardContent>
+              <Typography variant="h5" component="div">
+                Suggested Jobs
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Click show more to see suggested jobs based on your experience
+              </Typography>
+              <Collapse in={openSuggestions}>
+                {suggestedJobsLoading && <Typography>Loading...</Typography>}
+                {suggestedJobsError && (
+                  <Typography color="error">{`Error: ${suggestedJobsError.message}`}</Typography>
+                )}
+                {suggestedJobs && suggestedJobs.length > 0 ? (
+                  <Box sx={{ mt: 2 }}>
+                    {suggestedJobs.map((job) => (
+                      <Card
+                        key={job.id}
+                        sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
+                      >
+                        <CardContent sx={{ flex: 1 }}>
+                        <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}
+                          ><Grid sx={{
+                           
+                            justifyContent: 'space-between',
+                            
+                          }}>
+                            <Typography variant="h6" component="div">
+                              {job.title}
+                            </Typography>
+                            <Typography variant="body2" color="text.primary">
+                              Skills: {job.skills} 
+                            </Typography>
+                            <Typography variant="body2" color="primary">
+                              {job.openPositions} open positions
+                            </Typography>
+                            </Grid>
+                            <Grid>
+                            <Button
+                                onClick={() => handleOpenPopup(job)}
+                                color="primary"
+                                variant="contained"
+                              >
+                                More Details
+                              </Button>
+                              </Grid>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography>No suggested jobs found.</Typography>
+                )}
+              </Collapse>
+            </CardContent>
+            <CardActions>
+              <Button size="small" onClick={handleSuggestionsClick}>
+                {openSuggestions ? 'Show Less' : 'Show More'}
+              </Button>
+            </CardActions>
+          </Card>
+
+          <Card sx={{ mt: 4 }}>
+            <CardContent>
+              <Typography variant="h5" component="div">
+                My Account
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Click more details to update your personal details, experiences,
+                education, and to upload a new CV.
+              </Typography>
+              <Collapse in={openMyAccount}>
+              <MyAccountCard />
+              <MyExAndEdCard />
+              </Collapse>
+            </CardContent>
+            <CardActions>
+              <Button size="small" onClick={handleAccountClick}>
+                {openMyAccount ? 'Show Less' : 'Show More'}
+              </Button>
+            </CardActions>
+          </Card>
+          
+        </Container>
+        <JobPopup
+          job={selectedJob}
+          isOpen={!!selectedJob}
+          onRequestClose={handleClosePopup}
+          onApply={handleApply} 
+        />
+        <JobPopup
+          job={selectedJob1}
+          isOpen={!!selectedJob1}
+          onRequestClose={handleClosePopup1}
+          showApplyButton={false}
+        />
+      </Box>
+    </Box>
+  );
 };
 
 export default withAuth(CandidateHome);

@@ -2,7 +2,8 @@ import React from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Button, IconButton, Avatar, Box } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-const JobPopup = ({ job, isOpen, onRequestClose, onApply }) => {
+const JobPopup = ({ job, isOpen, onRequestClose, onApply, showApplyButton = true }) => {
+  if (!job) return null;
   return (
     <Dialog
       open={isOpen}
@@ -10,7 +11,7 @@ const JobPopup = ({ job, isOpen, onRequestClose, onApply }) => {
       fullWidth
       maxWidth="md"
     >
-      <DialogTitle>
+      <DialogTitle variant='h4'>
         {job.title}
         <IconButton
           edge="end"
@@ -29,11 +30,6 @@ const JobPopup = ({ job, isOpen, onRequestClose, onApply }) => {
       </DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', justifyContent: 'left', mb: 2 }}>
-          <Avatar 
-            src={job.image} 
-            alt={job.title} 
-            sx={{ width: 100, height: 100 }}  
-          />
         </Box>
         <Typography variant="body1" paragraph>
           {job.details}
@@ -52,13 +48,9 @@ const JobPopup = ({ job, isOpen, onRequestClose, onApply }) => {
         <Button onClick={onRequestClose} color="primary">
           Close
         </Button>
-        <Button
-          onClick={onApply}
-          variant="contained"
-          color="primary"
-        >
-          Apply
-        </Button>
+        {showApplyButton && onApply && (
+          <Button onClick={onApply} color="primary" variant='contained'>Apply</Button>
+        )}
       </DialogActions>
     </Dialog>
   );

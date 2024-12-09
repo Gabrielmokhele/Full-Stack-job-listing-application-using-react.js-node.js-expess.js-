@@ -16,6 +16,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import withAuth from "../../hooks/useAuth";
 import { multiStepContext } from "../../StepContext";
+import HelperDialog from "./HelperDialog";
 
 const truncateText = (text, length) => {
   return text.length > length ? text.substring(0, length) + "..." : text;
@@ -145,7 +146,9 @@ const JobSearch = () => {
           />
         )}
       </Box>
+      <HelperDialog jobs={filteredJobs} onJobSelect={handleOpenPopup}/>
     </Box>
+    
   );
 };
 

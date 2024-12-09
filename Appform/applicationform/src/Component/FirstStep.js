@@ -5,7 +5,6 @@ import withAuth from "../hooks/useAuth";
 import { multiStepContext } from "../StepContext";
 import { Formik, Form } from "formik";
 import TextfieldWrapper from "./FormUI/TextfieldWrapper";
-import DateTimePicker from "./FormUI/DateTimePicker";
 import * as Yup from "yup";
 import Select from "./FormUI/Select";
 import axios from "axios";
@@ -14,9 +13,9 @@ import { useNavigate } from "react-router-dom";
 import DateTimePickerWrapper from "./FormUI/DateTimePicker";
 
 
-const FirstStep = () => {s
+const FirstStep = () => {
   const navigate = useNavigate();
-  const { setStep, userData, setUserData, registerEmail, loginEmail, userId } =
+  const { setStep, userData, setUserData, registerEmail, loginEmail, userId , setRegisterEmail} =
     useContext(multiStepContext);
   const [countries, setCountries] = useState([]);
   const queryClient = useQueryClient();

@@ -23,7 +23,7 @@ const Homepage = () => {
     if (stepComplete) {    
       navigate(`${stepComplete}/?UID=${userId}`);
     } else {
-      navigate(`/dashboard/?UID=${userId}`);
+      navigate(`/dashboard/${userId}`);
     }
   }
 
@@ -31,7 +31,7 @@ const Homepage = () => {
     mutationFn: (loginData) => axios.post(`${API_URL}/login`, loginData),
     onSuccess: (data) => {
       handleSuccess(data);
-      setError(null); // Clear error on success
+      setError(null); 
     },
     onError: () => {
       setError("Login failed. Please check your credentials and try again.");

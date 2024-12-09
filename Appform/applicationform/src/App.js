@@ -27,7 +27,7 @@ function App() {
     <HeaderProvider> 
       <Routes>
       <Route path="/" element={<Homepage />} />
-          <Route path="/dashboard" element={isAuthenticated ? <JobSearch /> : <Navigate to="/" />} />
+          <Route path="/dashboard/:userId" element={isAuthenticated ? <JobSearch /> : <Navigate to="/" />} />
           <Route path="/profile/:userId" element={isAuthenticated ? <Profile /> : <Navigate to="/" />} />
           <Route path="/jobSearch/:userId" element={isAuthenticated ? <JobSearch /> : <Navigate to="/" />} />
           <Route path="/Candidate/:userId" element={isAuthenticated ? <CandidateHome /> : <Navigate to="/" />} />

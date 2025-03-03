@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HeaderProvider } from './Component/Header/headerContext';
 import { multiStepContext } from "./StepContext";
 import withAuth from "./hooks/useAuth"; 
+import CreateJob from "./Component/Pages/CreateJob";
 
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ function App() {
           <Route path="/profile/:userId" element={isAuthenticated ? <Profile /> : <Navigate to="/" />} />
           <Route path="/jobSearch/:userId" element={isAuthenticated ? <JobSearch /> : <Navigate to="/" />} />
           <Route path="/Candidate/:userId" element={isAuthenticated ? <CandidateHome /> : <Navigate to="/" />} />
+          <Route path="/createjob/:userId" element={isAuthenticated ? <CreateJob /> : <Navigate to="/" />} />
           <Route path="/step-1" element={isAuthenticated ? <FirstStep userId={userId} /> : <Navigate to="/" />} />
           <Route path="/step-2" element={isAuthenticated ? <SecondStep userId={userId} /> : <Navigate to="/" />} />
           <Route path="/step-3" element={isAuthenticated ? <ThirdStep userId={userId} /> : <Navigate to="/" />} />

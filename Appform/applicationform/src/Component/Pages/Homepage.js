@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Button, Container, Typography, Box, Grid } from "@mui/material";
+import { Button, Container, Typography, Box, Grid, Paper } from "@mui/material";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
@@ -20,7 +20,7 @@ const Homepage = () => {
   const handleSuccess = (data) => {
     const { stepComplete, token, userId } = data.data.data;
     localStorage.setItem('token', token);
-    if (stepComplete) {    
+    if (stepComplete) {
       navigate(`${stepComplete}/?UID=${userId}`);
     } else {
       navigate(`/dashboard/${userId}`);
@@ -31,7 +31,7 @@ const Homepage = () => {
     mutationFn: (loginData) => axios.post(`${API_URL}/login`, loginData),
     onSuccess: (data) => {
       handleSuccess(data);
-      setError(null); 
+      setError(null);
     },
     onError: () => {
       setError("Login failed. Please check your credentials and try again.");
@@ -52,24 +52,94 @@ const Homepage = () => {
 
   return (
     <Container
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
+      maxWidth={false}
+      disableGutters
+      sx={{
         minHeight: "100vh",
+        display: "flex",
+        background: "linear-gradient(135deg, #6a82fb, #fc5c7d)",
       }}
     >
-      <Typography variant="h4" gutterBottom>
-        Applications
-      </Typography>
-      {error && <Alert severity="error">{error}</Alert>}
-      {isLoggingIn ? (
-        <LoginForm setIsLoggingIn={setIsLoggingIn} loginMutation={loginMutation} />
-      ) : (
-        <RegisterForm setIsLoggingIn={setIsLoggingIn} registerMutation={registerMutation} />
-      )}
+      <Container
+        maxWidth={false}
+        disableGutters
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          height: "82vh",
+          mt: 10,
+          backgroundColor: "#ffffff",
+          width: 1200,
+          borderRadius: 2,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 4,
+            ml: 5,
+          }}
+        >
+          <Box textAlign="center">
+            <Paper elevation={3} sx={{
+              p: 4,
+              width: "100%",
+              maxWidth: 400,
+              borderRadius: 2,
+              background: "white",
+              position: "relative",
+              '&::before': {
+                content: '""',
+                position: "absolute",
+                borderRadius: 2,
+                padding: "2px",
+                background: "linear-gradient(135deg, #6a82fb, #fc5c7d)",
+                WebkitMask:
+                  "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                WebkitMaskComposite: "destination-out",
+                maskComposite: "exclude",
+              }
+            }}>
+              <Typography variant="h4" gutterBottom>
+              {isLoggingIn ? "Sign In" : "Register"}
+              </Typography>
+              {error && <Alert severity="error">{error}</Alert>}
+              {isLoggingIn ? (
+                <LoginForm setIsLoggingIn={setIsLoggingIn} loginMutation={loginMutation} />
+              ) : (
+                <RegisterForm setIsLoggingIn={setIsLoggingIn} registerMutation={registerMutation} />
+              )}
+            </Paper>
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+
+            background: "linear-gradient(to right, #fc5c7d , #6a82fb)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            p: 4,
+            borderTopRightRadius: 5,
+            borderBottomRightRadius: 5,
+          }}
+        >
+          <Box textAlign="center">
+            <Typography variant="h3" component="h1" gutterBottom>
+              Welcome Back
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Sign in to access your account
+            </Typography>
+          </Box>
+        </Box>
+      </Container>
     </Container>
+
   );
 };
 
@@ -111,23 +181,38 @@ const LoginForm = ({ setIsLoggingIn, loginMutation }) => {
                 <Button
                   type="submit"
                   variant="contained"
-                  color="primary"
                   fullWidth
+                  sx={{
+                    background: "linear-gradient(135deg, #6a82fb, #fc5c7d)",
+                    color: "white",
+                    '&:hover': {
+                      background: "linear-gradient(135deg, #5a72eb, #e44c6d)",
+                    },
+                  }}
                 >
                   Login
                 </Button>
               </Grid>
+
               <Grid item xs={6}>
                 <Button
                   type="button"
                   variant="outlined"
-                  color="primary"
                   fullWidth
                   onClick={() => setIsLoggingIn(false)}
+                  sx={{
+                    background: "linear-gradient(135deg, #ffffff, #ffffff) padding-box, linear-gradient(135deg, #6a82fb, #fc5c7d) border-box",
+                    border: "2px solid transparent",
+                    color: "#6a82fb",
+                    '&:hover': {
+                      background: "linear-gradient(135deg, #e1e1f9, #ffe5ec)",
+                    },
+                  }}
                 >
                   Register
                 </Button>
               </Grid>
+
             </Grid>
           </Box>
         </Form>
@@ -143,12 +228,14 @@ const RegisterForm = ({ setIsLoggingIn, registerMutation }) => {
     <Formik
       initialValues={{
         userName: "",
+        userType: "",
         email: "",
         password: "",
         confirmPassword: "",
       }}
       validationSchema={Yup.object({
         userName: Yup.string().required("Required"),
+        userType: Yup.string().required("Required"),
         email: Yup.string().email("Invalid email").required("Required"),
         password: Yup.string().required("Required"),
         confirmPassword: Yup.string()
@@ -157,7 +244,7 @@ const RegisterForm = ({ setIsLoggingIn, registerMutation }) => {
       })}
       onSubmit={(values, { setSubmitting }) => {
         registerMutation.mutate(
-          { userName: values.userName, email: values.email, password: values.password },
+          { userName: values.userName, userType: values.userType, email: values.email, password: values.password },
           {
             onSuccess: (data) => {
               const { userId } = data.data.data;
@@ -177,6 +264,9 @@ const RegisterForm = ({ setIsLoggingIn, registerMutation }) => {
                 <TextfieldWrapper name="userName" label="Username" type="text" />
               </Grid>
               <Grid item xs={12}>
+                <TextfieldWrapper name="userType" label="User Type" type="text" />
+              </Grid>
+              <Grid item xs={12}>
                 <TextfieldWrapper name="email" label="Email" type="email" />
               </Grid>
               <Grid item xs={12}>
@@ -189,7 +279,13 @@ const RegisterForm = ({ setIsLoggingIn, registerMutation }) => {
                 <Button
                   type="submit"
                   variant="contained"
-                  color="primary"
+                  sx={{
+                    background: "linear-gradient(135deg, #6a82fb, #fc5c7d)",
+                    color: "white",
+                    '&:hover': {
+                      background: "linear-gradient(135deg, #5a72eb, #e44c6d)",
+                    },
+                  }}
                   fullWidth
                   disabled={isSubmitting}
                 >
@@ -200,7 +296,14 @@ const RegisterForm = ({ setIsLoggingIn, registerMutation }) => {
                 <Button
                   type="button"
                   variant="outlined"
-                  color="primary"
+                  sx={{
+                    background: "linear-gradient(135deg, #ffffff, #ffffff) padding-box, linear-gradient(135deg, #6a82fb, #fc5c7d) border-box",
+                    border: "2px solid transparent",
+                    color: "#6a82fb",
+                    '&:hover': {
+                      background: "linear-gradient(135deg, #e1e1f9, #ffe5ec)",
+                    },
+                  }}
                   fullWidth
                   onClick={() => setIsLoggingIn(true)}
                 >

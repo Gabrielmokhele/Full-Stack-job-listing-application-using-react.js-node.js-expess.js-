@@ -28,7 +28,7 @@ const generateRefreshToken = (user) => {
 
 exports.registerUser = async (req, res) => {
   try {
-    const { userName, email, password } = req.body;
+    const { userName, userType, email, password } = req.body;
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -41,6 +41,7 @@ exports.registerUser = async (req, res) => {
 
     const newUser = await User.create({
       userName,
+      userType,
       email,
       password,
     });
@@ -62,6 +63,7 @@ exports.registerUser = async (req, res) => {
       data: { 
         userId: newUser.id, 
         userName: newUser.userName, 
+        userType: newUser.userType,
         email: newUser.email,
         token,
 
@@ -136,6 +138,7 @@ exports.loginUser = async (req, res) => {
       data: {
         userId: user.id,
         userName: user.userName,
+        userType: user.userType,
         email: user.email,
         stepComplete,
         token,
@@ -234,6 +237,7 @@ exports.getUserData = async (req, res) => {
         user: {
           id: user.id,
           userName: user.userName,
+          userType: user.userType,
           email: user.email,
           password: user.password
         },

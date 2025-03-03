@@ -20,12 +20,13 @@ import axios from 'axios';
 import JobPopup from '../jobPopUp';
 import MyAccountCard from './MyAccountCard';
 import MyExAndEdCard from './MyExAndEdCard';
+import MyFileCard from './MyFileCard';
 
 
 const fetchUserApplications = async (userId) => {
   try {
     const response = await axios.get(`http://localhost:5001/user/${userId}`);
-    return response.data.data;
+    return response?.data?.data;
   } catch (error) {
     console.error('Failed to fetch user applications:', error);
     throw error;
@@ -44,7 +45,7 @@ const deleteAppliedJob = async ({ userId, jobId }) => {
 const fetchSuggestedJobs = async (userId) => {
   try {
     const response = await axios.get(`http://localhost:5001/suggestjobs/${userId}`);
-    return response.data.data;
+    return response?.data?.data;
   } catch (error) {
     console.error('Failed to fetch suggested jobs:', error);
     throw error;
@@ -61,22 +62,23 @@ const CandidateHome = () => {
   const { userId } = useParams();
 
   const {
-    data: userApplications,
+    data: userApplications ,
     error: userApplicationsError,
     isLoading: userApplicationsLoading,
   } = useQuery({
-    queryKey: ['userApplications', userId],
-    queryFn: () => fetchUserApplications(userId),
+    queryKey: ["userApplications", userId],
+    queryFn: () => fetchUserApplications(userId).then((res) => res || []),
   });
-
+  
   const {
-    data: suggestedJobs,
+    data: suggestedJobs ,
     error: suggestedJobsError,
     isLoading: suggestedJobsLoading,
   } = useQuery({
-    queryKey: ['suggestedJobs', userId],
-    queryFn: () => fetchSuggestedJobs(userId),
+    queryKey: ["suggestedJobs", userId],
+    queryFn: () => fetchSuggestedJobs(userId).then((res) => res || []),
   });
+  
 
   const mutation = useMutation({
     mutationFn: deleteAppliedJob,
@@ -87,7 +89,7 @@ const CandidateHome = () => {
 
   const mutationApply = useMutation({
     mutationFn: async ({ jobId }) => {
-      return axios.post("http://localhost:5001/jobsapplied", { userId, jobId });
+      return axios.post("http://localhost:5001/jobsapplieds", { userId, jobId });
     },
     onSuccess: () => {
       setSelectedJob(null)
@@ -329,6 +331,7 @@ const CandidateHome = () => {
               <Collapse in={openMyAccount}>
               <MyAccountCard />
               <MyExAndEdCard />
+              <MyFileCard/>
               </Collapse>
             </CardContent>
             <CardActions>
@@ -337,6 +340,7 @@ const CandidateHome = () => {
               </Button>
             </CardActions>
           </Card>
+          
           
         </Container>
         <JobPopup

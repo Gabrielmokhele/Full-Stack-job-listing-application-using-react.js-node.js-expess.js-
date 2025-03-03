@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Button, IconButton, Avatar, Box } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Button, IconButton, Box } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 const JobPopup = ({ job, isOpen, onRequestClose, onApply, showApplyButton = true }) => {

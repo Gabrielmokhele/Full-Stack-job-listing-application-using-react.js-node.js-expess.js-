@@ -7,7 +7,8 @@ import {
   Button,
   Box,
   TextField,
-  Avatar,
+  Alert,
+  Stack
 } from "@mui/material";
 import Header from "../Header/header";
 import JobPopup from "../jobPopUp";
@@ -18,6 +19,7 @@ import withAuth from "../../hooks/useAuth";
 import { multiStepContext } from "../../StepContext";
 import HelperDialog from "./HelperDialog";
 
+
 const truncateText = (text, length) => {
   return text.length > length ? text.substring(0, length) + "..." : text;
 };
@@ -25,6 +27,7 @@ const truncateText = (text, length) => {
 const JobSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedJob, setSelectedJob] = useState(null);
+  const [alertInfo, setAlertInfo] = useState({ message: "", severity: "" });
   const navigate = useNavigate();
   const { userId } = useContext(multiStepContext);
 
@@ -35,7 +38,7 @@ const JobSearch = () => {
         console.log("Fetched jobs:", res.data.data);
         return res.data.data;
       }),
-    onError: () => handleOpenSnackbar("Failed to fetch jobs", "error"),
+    onError: () => setAlertInfo({ message: "Failed to fetch jobs", severity: "error" }),
   });
 
   const mutation = useMutation({
@@ -44,11 +47,11 @@ const JobSearch = () => {
     },
     onSuccess: () => {
       navigate(`/candidate/${userId}`);
-      alert(`You have applied for the ${selectedJob.title} position.`);
+      setAlertInfo({ message: `You have applied for the ${selectedJob.title} position.`, severity: "success" });
     },
     onError: (error) => {
       console.error("Failed to apply for job:", error);
-      alert("Failed to apply for the job.");
+      setAlertInfo({ message: "Failed to apply for job.", severity: "error" });
     },
   });
 
@@ -88,6 +91,11 @@ const JobSearch = () => {
         <Typography variant="h4" gutterBottom>
           | Jobs
         </Typography>
+        {alertInfo.message && (
+        <Stack sx={{ width: "100%", mb: 2 }}>
+          <Alert severity={alertInfo.severity}>{alertInfo.message}</Alert>
+        </Stack>
+      )}
         <TextField
           sx={{ mb: 2 }}
           variant="outlined"

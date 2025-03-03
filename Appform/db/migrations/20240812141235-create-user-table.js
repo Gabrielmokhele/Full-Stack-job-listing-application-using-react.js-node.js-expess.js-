@@ -23,6 +23,10 @@ module.exports = {
           len: [3, 50]
         }
       },
+      userType: {
+        type: Sequelize.STRING,
+        allowNull: false,       
+      },
       email: {
         type: Sequelize.STRING,
         allowNull: false,

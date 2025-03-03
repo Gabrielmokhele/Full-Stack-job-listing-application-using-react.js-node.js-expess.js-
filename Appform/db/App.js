@@ -1,16 +1,19 @@
 const express = require("express");
 const { sequelize } = require("./models");
 const cors = require("cors");
-const bodyParser = require('body-parser');
-
+const bodyParser = require("body-parser");
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-app.use("", require("./Routes"));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use("", require("./Routes"));
+
 const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, async () => {

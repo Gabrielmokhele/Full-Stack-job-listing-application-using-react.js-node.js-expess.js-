@@ -5,7 +5,7 @@ import withAuth from "../hooks/useAuth";
 import { multiStepContext } from "../StepContext";
 import { Formik, Form, FieldArray } from "formik";
 import TextfieldWrapper from "./FormUI/TextfieldWrapper";
-import DateTimePicker from "./FormUI/DateTimePicker";
+import DateTimePickerWrapper from "./FormUI/DateTimePicker";
 import * as Yup from "yup";
 import axios from "axios";
 import Header from "./Header/header";
@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 
 const SecondStep = () => {
   const navigate = useNavigate();
-  const { setStep, userData, setUserData, userId  } = useContext(multiStepContext);
+  const { setStep, userData, setUserData, userId } = useContext(multiStepContext);
 
   console.log("SecondStep", userData);
 
@@ -28,14 +28,14 @@ const SecondStep = () => {
       experiences: values.experiences.map(exp => ({ ...exp, userId })),
       educations: values.educations.map(edu => ({ ...edu, userId })),
     };
-  
+
     console.log("Submitting Data:", combinedData);
-  
+
     createEducationsAndExperiences.mutate(combinedData, {
       onSuccess: (data) => {
         setSubmitting(false);
         console.log("Success Data:", data);
-    
+
         setUserData((prevData) => ({
           ...prevData,
           SecondStepData: data.data?.data,
@@ -49,7 +49,7 @@ const SecondStep = () => {
       },
     });
   };
-  
+
 
   const INITIAL_FORM_STATE = {
     experiences: userData?.experiences || [
@@ -133,10 +133,34 @@ const SecondStep = () => {
                                 <TextfieldWrapper name={`experiences.${index}.position`} label="Position" />
                               </Grid>
                               <Grid item xs={6}>
-                                <DateTimePicker name={`experiences.${index}.startDate`} label="Start Date" />
+
+                                <DateTimePickerWrapper
+                                  name={`experiences.${index}.startDate`}
+                                  label="Start Date"
+                                  variant="outlined"
+                                  fullWidth
+                                  sx={{ width: '100%' }}
+                                  type="Date"
+                                  color="secondary"
+                                  value={values.dateOfBirth}
+
+
+                                />
                               </Grid>
                               <Grid item xs={6}>
-                                <DateTimePicker name={`experiences.${index}.endDate`} label="End Date" />
+
+                                <DateTimePickerWrapper
+                                  name={`experiences.${index}.endDate`}
+                                  label="End Date"
+                                  variant="outlined"
+                                  fullWidth
+                                  sx={{ width: '100%' }}
+                                  type="Date"
+                                  color="secondary"
+                                  value={values.dateOfBirth}
+
+
+                                />
                               </Grid>
                               <Grid item xs={12}>
                                 <TextfieldWrapper name={`experiences.${index}.roleDescription`} label="Role Description" />
@@ -192,10 +216,34 @@ const SecondStep = () => {
                                 <TextfieldWrapper name={`educations.${index}.qualification`} label="Qualification" />
                               </Grid>
                               <Grid item xs={6}>
-                                <DateTimePicker name={`educations.${index}.startDate1`} label="Start Date" />
+
+                                <DateTimePickerWrapper
+                                  name={`educations.${index}.startDate1`}
+                                  label="Start Date"
+                                  variant="outlined"
+                                  fullWidth
+                                  sx={{ width: '100%' }}
+                                  type="Date"
+                                  color="secondary"
+                                  value={values.dateOfBirth}
+
+
+                                />
                               </Grid>
                               <Grid item xs={6}>
-                                <DateTimePicker name={`educations.${index}.endDate1`} label="End Date" />
+
+                                <DateTimePickerWrapper
+                                  name={`educations.${index}.endDate1`}
+                                  label="End Date"
+                                  variant="outlined"
+                                  fullWidth
+                                  sx={{ width: '100%' }}
+                                  type="Date"
+                                  color="secondary"
+                                  value={values.dateOfBirth}
+
+
+                                />
                               </Grid>
                               <Grid item xs={12}>
                                 <TextfieldWrapper name={`educations.${index}.description`} label="Description" />

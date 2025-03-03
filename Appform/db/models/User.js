@@ -55,7 +55,10 @@ module.exports = (sequelize, DataTypes) => {
           len: [3, 50],
         },
       },
-      
+      userType: {
+        type: DataTypes.STRING,
+        allowNull: false,       
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,

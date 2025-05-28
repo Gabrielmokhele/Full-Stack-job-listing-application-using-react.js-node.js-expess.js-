@@ -286,6 +286,7 @@ const RegisterForm = ({ setIsLoggingIn, registerMutation }) => {
                       background: "linear-gradient(135deg, #5a72eb, #e44c6d)",
                     },
                   }}
+                  
                   fullWidth
                   disabled={isSubmitting}
                 >
